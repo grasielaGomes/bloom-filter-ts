@@ -2,6 +2,7 @@ export class BloomFilter {
   private size: number
   private bitArray: Uint8Array
   private hashCount: number
+  private insertedElements: number = 0
 
   constructor(size: number, hashCount: number) {
     this.size = size
@@ -22,6 +23,7 @@ export class BloomFilter {
       const index = this.hash(value, i + 1)
       this.bitArray[index] = 1
     }
+    this.insertedElements++
   }
 
   contains(value: string): boolean {
@@ -32,5 +34,16 @@ export class BloomFilter {
       }
     }
     return true
+  }
+
+  estimateFalsePositiveRate(): number {
+    const k = this.hashCount
+    const m = this.size
+    const n = this.insertedElements
+
+    const exp = Math.exp((-k * n) / m)
+    const fpr = Math.pow(1 - exp, k)
+
+    return parseFloat(fpr.toFixed(6))
   }
 }
